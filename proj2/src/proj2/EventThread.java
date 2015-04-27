@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import org.omg.PortableInterceptor.USER_EXCEPTION;
-
 public class EventThread extends Thread{
 	private int siteNum;
 	private int arrayNum;
