@@ -3,6 +3,9 @@ package proj2;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -10,6 +13,7 @@ import java.util.HashSet;
 public class EventThread extends Thread {
 	private int siteNum;
 	private int arrayNum;
+	private int PORT_NO = 5000;
 	public static int[][] timeTable = new int[4][4];
 	public static ArrayList<StringTime> log = (ArrayList<StringTime>) Collections
 			.synchronizedList(new ArrayList<StringTime>());
@@ -37,8 +41,38 @@ public class EventThread extends Thread {
 			e.printStackTrace();
 		}
 	}
+	
+	/*
+	 * Check local TimeTable for what we know that destSite knows
+	 * about sites 1-4 (excluding itself)
+	 *
+	 * Using these clock values, create Log copy with all entries with
+	 * clock value greater than TT[destSite,i]
+	 */
+	public void share(int destSite) throws UnknownHostException, IOException {
+		ArrayList<StringTime> sendLog = (ArrayList<StringTime>) Collections.synchronizedList(new ArrayList<StringTime>());
+		
+		for(StringTime st : log) {
+			if(st.clock > timeTable[destSite][st.site]) {
+				// If we have in our local log an event with greater clock value
+				// than what destSite knows about according to OUR TT, add to sendLog
+				 
+				sendLog.add(st);
+			}
+		}
+		
+		/*
+		 * Send sendLog to destSite
+		 */
+		Socket socket = new Socket("localHost", PORT_NO+destSite);
+		ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
+		outStream.writeObject(sendLog);
+		
+		socket.close();
+	}
+	
 
-	public void processEvent(String event) {
+	public void processEvent(String event) throws UnknownHostException, IOException {
 		// Determine event in string length order.
 		if (event.substring(0, 4).equals("Post")) {
 			// Get message id.
@@ -63,7 +97,8 @@ public class EventThread extends Thread {
 			int time = timeTable[arrayNum][arrayNum];
 
 			// Add log entry to log with local time.
-			log.add(new StringTime(time, temp));
+			log.add(new StringTime(time, temp, siteNum));
+			
 		} else if (event.substring(0, 4).equals("Idle")) {
 			int idleTime = Integer.valueOf(event.substring(5));
 			try {
@@ -75,6 +110,10 @@ public class EventThread extends Thread {
 			int userId = Integer.valueOf(event.substring(6));
 
 			// TODO: Implement Sharing
+			int destSite = Integer.parseInt(event.substring(6,6));
+			share(destSite);
+			
+			
 		} else if (event.substring(0, 6).equals("Delete")) {
 			int msgId = Integer.valueOf(event.substring(7));
 
@@ -90,7 +129,8 @@ public class EventThread extends Thread {
 			int time = timeTable[arrayNum][arrayNum];
 
 			// Add log entry to log with local time.
-			log.add(new StringTime(time, temp));
+			log.add(new StringTime(time, temp, siteNum));
+			
 		} else if (event.substring(0, 8).equals("ShowBlog")) {
 			String temp = "Blog: ";
 			for (Integer i : msgs) {
