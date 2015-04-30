@@ -42,6 +42,29 @@ public class EventThread extends Thread {
 		}
 	}
 	
+	
+	/*
+	 * Shares log and TT with destSite
+	 */
+	public void share(int destSite) throws UnknownHostException, IOException {
+		Socket socket = new Socket("localHost", PORT_NO+destSite);
+		ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
+		
+		shareLog(destSite, socket, outStream);
+		shareTT(destSite, socket, outStream);
+		
+		socket.close();
+	}
+	
+	
+	/*
+	 * Shares TT with destSite
+	 */
+	public void shareTT(int destSite, Socket socket, ObjectOutputStream outStream) throws UnknownHostException, IOException {
+		outStream.writeObject(timeTable);
+	}
+	
+	
 	/*
 	 * Check local TimeTable for what we know that destSite knows
 	 * about sites 1-4 (excluding itself)
@@ -49,7 +72,7 @@ public class EventThread extends Thread {
 	 * Using these clock values, create Log copy with all entries with
 	 * clock value greater than TT[destSite,i]
 	 */
-	public void share(int destSite) throws UnknownHostException, IOException {
+	public void shareLog(int destSite, Socket socket, ObjectOutputStream outStream) throws UnknownHostException, IOException {
 		ArrayList<StringTime> sendLog = (ArrayList<StringTime>) Collections.synchronizedList(new ArrayList<StringTime>());
 		
 		for(StringTime st : log) {
@@ -64,11 +87,7 @@ public class EventThread extends Thread {
 		/*
 		 * Send sendLog to destSite
 		 */
-		Socket socket = new Socket("localHost", PORT_NO+destSite);
-		ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
 		outStream.writeObject(sendLog);
-		
-		socket.close();
 	}
 	
 

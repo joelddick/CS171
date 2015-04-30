@@ -51,18 +51,19 @@ public class ServeThread extends Thread {
 				System.out.println("Connected");
 				
 				/*
+				 * Receive log
+				 */
+				inStream = new ObjectInputStream(socket.getInputStream());
+				ArrayList<StringTime> log = new ArrayList<StringTime>();
+				log = (ArrayList<StringTime>) inStream.readObject();
+				
+				/*
 				 * Receive time table
 				 */
 				inStream = new ObjectInputStream(socket.getInputStream());
 				int[][] timeTable = new int[4][4];
 				timeTable = (int[][]) inStream.readObject();
 				
-				/*
-				 * Receive log
-				 */
-				inStream = new ObjectInputStream(socket.getInputStream());
-				ArrayList<StringTime> log = new ArrayList<StringTime>();
-				log = (ArrayList<StringTime>) inStream.readObject();
 				
 				/*
 				 * Update timetable and log
