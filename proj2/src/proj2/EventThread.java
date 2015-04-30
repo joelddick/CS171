@@ -1,23 +1,28 @@
 package proj2;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 public class EventThread extends Thread {
 	private int siteNum;
 	private int arrayNum;
-	private int PORT_NO = 5000;
-	public static int[][] timeTable = new int[4][4];
-	public static ArrayList<StringTime> log = (ArrayList<StringTime>) Collections
+	private int PORT_NO = 10000;
+	public int[][] timeTable = new int[4][4];
+	public List<StringTime> log = (List<StringTime>) Collections
 			.synchronizedList(new ArrayList<StringTime>());
-	private HashSet<Integer> msgs = new HashSet<Integer>();
+	public Set<Integer> msgs = (Set<Integer>) Collections.synchronizedSet(new HashSet<Integer>());
+	private PrintWriter writer;
 
 	public EventThread(int siteNum) {
 		this.siteNum = siteNum;
@@ -26,45 +31,52 @@ public class EventThread extends Thread {
 
 	public void run() {
 		String dir = System.getProperty("user.dir");
-		String path = dir + "\\user" + String.valueOf(siteNum) + ".txt";
+		String path = dir + "/user" + String.valueOf(siteNum) + ".txt";
 		try {
 			FileReader fr = new FileReader(path);
 			BufferedReader br = new BufferedReader(fr);
 			String line;
+
+			writer = new PrintWriter("Output" + String.valueOf(siteNum) + ".txt");
 
 			while ((line = br.readLine()) != null) {
 				processEvent(line);
 			}
 			br.close();
 			fr.close();
+			writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	/*
 	 * Shares log and TT with destSite
 	 */
 	public void share(int destSite) throws UnknownHostException, IOException {
 		Socket socket = new Socket("localHost", PORT_NO+destSite);
 		ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
-		
+		outStream.flush();
+
+		outStream.writeInt(siteNum);
 		shareLog(destSite, socket, outStream);
 		shareTT(destSite, socket, outStream);
-		
+
 		socket.close();
 	}
-	
-	
+
+
 	/*
 	 * Shares TT with destSite
 	 */
 	public void shareTT(int destSite, Socket socket, ObjectOutputStream outStream) throws UnknownHostException, IOException {
-		outStream.writeObject(timeTable);
+		synchronized (timeTable) {
+			outStream.writeObject(timeTable);
+		}
 	}
-	
-	
+
+
 	/*
 	 * Check local TimeTable for what we know that destSite knows
 	 * about sites 1-4 (excluding itself)
@@ -73,25 +85,27 @@ public class EventThread extends Thread {
 	 * clock value greater than TT[destSite,i]
 	 */
 	public void shareLog(int destSite, Socket socket, ObjectOutputStream outStream) throws UnknownHostException, IOException {
-		ArrayList<StringTime> sendLog = (ArrayList<StringTime>) Collections.synchronizedList(new ArrayList<StringTime>());
-		
-		for(StringTime st : log) {
-			if(st.clock > timeTable[destSite][st.site]) {
-				// If we have in our local log an event with greater clock value
-				// than what destSite knows about according to OUR TT, add to sendLog
-				 
-				sendLog.add(st);
+		List<StringTime> sendLog = (List<StringTime>) Collections.synchronizedList(new ArrayList<StringTime>());
+		synchronized (timeTable) {
+			for(StringTime st : log) {
+				if(st.clock > timeTable[destSite-1][st.site-1]) {
+					// If we have in our local log an event with greater clock value
+					// than what destSite knows about according to OUR TT, add to sendLog
+
+					sendLog.add(st);
+				}
 			}
 		}
-		
+
 		/*
 		 * Send sendLog to destSite
 		 */
 		outStream.writeObject(sendLog);
 	}
-	
+
 
 	public void processEvent(String event) throws UnknownHostException, IOException {
+
 		// Determine event in string length order.
 		if (event.substring(0, 4).equals("Post")) {
 			// Get message id.
@@ -104,20 +118,24 @@ public class EventThread extends Thread {
 				message = message.substring(0, 140);
 			}
 
-			// Add message id to set of known messages.
-			msgs.add((Integer) msgId);
+			synchronized (msgs) {
+				// Add message id to set of known messages.
+				msgs.add((Integer) msgId);
+			}
 
-			// Increment time table.
-			timeTable[arrayNum][arrayNum] += 1;
+			synchronized (timeTable) {
+				// Increment time table.
+				timeTable[arrayNum][arrayNum] += 1;
 
-			// Create log entry.
-			String temp = "Post(" + String.valueOf(msgId) + ",\"" + message
-					+ "\")";
-			int time = timeTable[arrayNum][arrayNum];
+				// Create log entry.
+				String temp = "Post(" + String.valueOf(msgId) + ",\"" + message
+						+ "\")";
+				int time = timeTable[arrayNum][arrayNum];
 
-			// Add log entry to log with local time.
-			log.add(new StringTime(time, temp, siteNum));
-			
+				// Add log entry to log with local time.
+				log.add(new StringTime(time, temp, siteNum));
+			}
+			writer.write("Post " + String.valueOf(msgId));
 		} else if (event.substring(0, 4).equals("Idle")) {
 			int idleTime = Integer.valueOf(event.substring(5));
 			try {
@@ -125,40 +143,50 @@ public class EventThread extends Thread {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			writer.write("Idle " + String.valueOf(idleTime) + " seconds");
 		} else if (event.substring(0, 5).equals("Share")) {
-			int userId = Integer.valueOf(event.substring(6));
-
 			// TODO: Implement Sharing
-			int destSite = Integer.parseInt(event.substring(6,6));
+			int destSite = Integer.parseInt(event.substring(6));
 			share(destSite);
-			
-			
+			writer.write("Share " + String.valueOf(destSite));
 		} else if (event.substring(0, 6).equals("Delete")) {
+			if(siteNum == 3){
+				System.out.println(String.valueOf(msgs));
+			}
 			int msgId = Integer.valueOf(event.substring(7));
-
-			if (msgs.contains((Integer) msgId)) {
-				msgs.remove((Integer) msgId);
+			boolean update = false;
+			synchronized (msgs) {
+				if (msgs.contains((Integer) msgId)) {
+					msgs.remove((Integer) msgId);
+					update = true;
+				}
 			}
+			if(update){
+				synchronized (timeTable) {
+					// Increment time table.
+					timeTable[arrayNum][arrayNum] += 1;
 
-			// Increment time table.
-			timeTable[arrayNum][arrayNum] += 1;
+					// Create log entry.
+					String temp = "Delete(" + String.valueOf(msgId) + ")";
+					int time = timeTable[arrayNum][arrayNum];
 
-			// Create log entry.
-			String temp = "Delete(" + String.valueOf(msgId) + ")";
-			int time = timeTable[arrayNum][arrayNum];
-
-			// Add log entry to log with local time.
-			log.add(new StringTime(time, temp, siteNum));
-			
+					// Add log entry to log with local time.
+					log.add(new StringTime(time, temp, siteNum));
+				}
+				writer.write("Delete " + String.valueOf(msgId));
+			}
+			else{
+				writer.write("Delete " + String.valueOf(msgId) + " failed");
+			}
 		} else if (event.substring(0, 8).equals("ShowBlog")) {
-			String temp = "Blog: ";
-			for (Integer i : msgs) {
-				temp = temp + String.valueOf(i) + ",";
+			synchronized (msgs) {
+				String temp = "Blog: ";
+				for (Integer i : msgs) {
+					temp = temp + String.valueOf(i) + ",";
+				}
+				temp = temp.substring(0, temp.length() - 1);
+				writer.write(temp);
 			}
-			temp = temp.substring(0, temp.length() - 1);
-
-			// TODO: Print temp
-			System.out.println(temp);
 		} else if (event.substring(0, 10).equals("PrintState")) {
 			String tempLog = "Log: {";
 			for (StringTime i : log) {
@@ -169,17 +197,19 @@ public class EventThread extends Thread {
 			String[] tempTable = new String[4];
 			for (int i = 0; i < 4; i++) {
 				String temp = "|";
-				for (int j = 0; j < 4; j++) {
-					temp = temp + String.valueOf(timeTable[i][j]) + " ";
+				synchronized (timeTable) {
+					for (int j = 0; j < 4; j++) {
+						temp = temp + String.valueOf(timeTable[i][j]) + " ";
+					}
 				}
 				temp = temp.substring(0, temp.length() - 1) + "|";
 				tempTable[i] = temp;
 			}
 
 			// TODO: Print temp
-			System.out.println(tempLog);
+			writer.write(tempLog);
 			for (int i = 0; i < 4; i++) {
-				System.out.println(tempTable[i]);
+				writer.write(tempTable[i]);
 			}
 		}
 	}
