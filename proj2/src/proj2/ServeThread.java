@@ -113,12 +113,15 @@ public class ServeThread extends Thread {
 			}
 		}
 		
+		
+		
 		// use this clock value to garbage collect
 		if(clearUntil != 0) {
+			System.out.println("Clearing up until " + clearUntil + " at site " + this.siteNum);
 			synchronized (parentThread.log) {
 				for(int i = 0; i < parentThread.log.size(); ++i) {
 					if(parentThread.log.get(i).clock <= clearUntil) {
-						System.out.println("Removing " + i);
+						System.out.println("Removing " + parentThread.log.get(i).string + " at site "+this.siteNum);
 						parentThread.log.remove(i);
 					}
 					
