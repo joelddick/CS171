@@ -1,0 +1,11 @@
+Post 3
+Idle 2 seconds
+Share 3
+Delete 3
+Blog: 2
+Log: {post(3,"just setting up my twttr"),post(1,"I thought it would be a good idea to create this input file from the replicated log example that was presented on the previous discussion se"),post(2,"Any 9gag fans out there?"),delete(1),delete(3)}
+TimeTable:
+|  3  0  0  0|
+|  3  2  0  0|
+|  0  0  0  0|
+|  0  0  0  0|

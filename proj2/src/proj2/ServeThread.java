@@ -16,6 +16,7 @@ public class ServeThread extends Thread {
 	ServerSocket serverSocket = null;
 	private ObjectInputStream inStream = null;
 	private boolean isRunning = false;
+	private boolean checkNow = false;
 	private EventThread parentThread;
 
 	public ServeThread(int siteNum, EventThread et) {
@@ -77,6 +78,14 @@ public class ServeThread extends Thread {
 				 */
 				update(sourceSite, timeTable);
 				update(log);
+				
+				/*
+				 * Garbage collect
+				 */
+//				checkNow = !checkNow;
+//				if(checkNow) {
+					gargabeCollect();
+//				}
 
 
 			} catch (ClassNotFoundException e) {
@@ -87,6 +96,38 @@ public class ServeThread extends Thread {
 		}
 	}
 
+	
+	/*
+	 * Synchronously garbage collect
+	 */
+	public synchronized void gargabeCollect() {
+		
+		int clearUntil = Integer.MAX_VALUE;
+		
+		// Find lowest common clock value
+		synchronized (parentThread.timeTable) {
+			for(int i = 0; i < 4; ++i) {
+				if(parentThread.timeTable[i][siteNum-1] < clearUntil) {
+					clearUntil = parentThread.timeTable[i][siteNum-1];
+				}
+			}
+		}
+		
+		// use this clock value to garbage collect
+		if(clearUntil != 0) {
+			synchronized (parentThread.log) {
+				for(int i = 0; i < parentThread.log.size(); ++i) {
+					if(parentThread.log.get(i).clock <= clearUntil) {
+						System.out.println("Removing " + i);
+						parentThread.log.remove(i);
+					}
+					
+				}
+			}
+		}
+		
+	}
+	
 
 	/*
 	 * Synchronously update TimeTable

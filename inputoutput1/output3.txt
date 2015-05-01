@@ -1,0 +1,13 @@
+Post 3
+Share 1
+Share 2
+Post 7
+Idle 8 seconds
+Delete 4 failed
+Blog: 1,2,3,5,7
+Log: {post(3,"hiiii"),post(7,"This is fun"),post(2,"Sup"),delete(4),post(1,"Hello"),post(5,"Anyone?")}
+TimeTable:
+|  2  1  1  1|
+|  0  2  1  1|
+|  2  2  2  1|
+|  0  0  0  1|

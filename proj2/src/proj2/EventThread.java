@@ -37,7 +37,7 @@ public class EventThread extends Thread {
 			BufferedReader br = new BufferedReader(fr);
 			String line;
 
-			writer = new PrintWriter("Output" + String.valueOf(siteNum) + ".txt");
+			writer = new PrintWriter("output" + String.valueOf(siteNum) + ".txt");
 
 			while ((line = br.readLine()) != null) {
 				processEvent(line);
@@ -135,7 +135,7 @@ public class EventThread extends Thread {
 				// Add log entry to log with local time.
 				log.add(new StringTime(time, temp, siteNum));
 			}
-			writer.write("Post " + String.valueOf(msgId));
+			writer.write("Post " + String.valueOf(msgId)+"\n");
 		} else if (event.substring(0, 4).equals("Idle")) {
 			int idleTime = Integer.valueOf(event.substring(5));
 			try {
@@ -143,12 +143,12 @@ public class EventThread extends Thread {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			writer.write("Idle " + String.valueOf(idleTime) + " seconds");
+			writer.write("Idle " + String.valueOf(idleTime) + " seconds"+"\n");
 		} else if (event.substring(0, 5).equals("Share")) {
 			// TODO: Implement Sharing
 			int destSite = Integer.parseInt(event.substring(6));
 			share(destSite);
-			writer.write("Share " + String.valueOf(destSite));
+			writer.write("Share " + String.valueOf(destSite)+"\n");
 		} else if (event.substring(0, 6).equals("Delete")) {
 			if(siteNum == 3){
 				System.out.println(String.valueOf(msgs));
@@ -173,10 +173,10 @@ public class EventThread extends Thread {
 					// Add log entry to log with local time.
 					log.add(new StringTime(time, temp, siteNum));
 				}
-				writer.write("Delete " + String.valueOf(msgId));
+				writer.write("Delete " + String.valueOf(msgId)+"\n");
 			}
 			else{
-				writer.write("Delete " + String.valueOf(msgId) + " failed");
+				writer.write("Delete " + String.valueOf(msgId) + " failed"+"\n");
 			}
 		} else if (event.substring(0, 8).equals("ShowBlog")) {
 			synchronized (msgs) {
@@ -185,7 +185,7 @@ public class EventThread extends Thread {
 					temp = temp + String.valueOf(i) + ",";
 				}
 				temp = temp.substring(0, temp.length() - 1);
-				writer.write(temp);
+				writer.write(temp+"\n");
 			}
 		} else if (event.substring(0, 10).equals("PrintState")) {
 			String tempLog = "Log: {";
@@ -196,7 +196,7 @@ public class EventThread extends Thread {
 
 			String[] tempTable = new String[4];
 			for (int i = 0; i < 4; i++) {
-				String temp = "|";
+				String temp = "| ";
 				synchronized (timeTable) {
 					for (int j = 0; j < 4; j++) {
 						temp = temp + String.valueOf(timeTable[i][j]) + " ";
@@ -207,9 +207,9 @@ public class EventThread extends Thread {
 			}
 
 			// TODO: Print temp
-			writer.write(tempLog);
+			writer.write(tempLog+"\n");
 			for (int i = 0; i < 4; i++) {
-				writer.write(tempTable[i]);
+				writer.write(tempTable[i]+"\n");
 			}
 		}
 	}

@@ -1,0 +1,13 @@
+Post 1
+Share 2
+Share 3
+Share 4
+Idle 10 seconds
+Delete 1 failed
+Blog: 
+Log: {delete(1),delete(1),delete(1)}
+TimeTable:
+|  1  1  1  1|
+|  1  1  0  0|
+|  1  0  1  0|
+|  1  0  0  1|

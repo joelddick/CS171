@@ -1,0 +1,6 @@
+Idle 2
+Post 3 My name is user 3
+Share 4
+Idle 5
+ShowBlog
+PrintState

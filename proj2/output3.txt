@@ -1,0 +1,10 @@
+Idle 2 seconds
+Post 3
+Share 4
+Idle 5 seconds
+Blog:
+Log: {Post(4,"My name is user 4"),Post(3,"My name is user 3"),Post(2,"My name is user 2"),Post(1,"My name is user 1"),Delete(1),Delete(2),Delete(3),Delete(4)}
+| 1 0 0 1|
+| 0 1 0 1|
+| 1 1 1 5|
+| 1 1 1 5|

@@ -1,0 +1,8 @@
+Post 4 I am bored
+Share 2
+Post 8 YOLO
+ShowBlog
+Idle 3
+Idle 5
+ShowBlog
+PrintState

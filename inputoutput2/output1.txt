@@ -1,0 +1,11 @@
+Idle 2 seconds
+Post 1
+Share 4
+Idle 5 seconds
+Blog: 
+Log: {post(1,"My name is user 1"),post(2,"My name is user 2"),post(3,"My name is user 3"),delete(1),delete(2),delete(3),delete(4)}
+TimeTable:
+|  1  1  1  5|
+|  0  1  0  1|
+|  0  0  1  1|
+|  1  1  1  5|

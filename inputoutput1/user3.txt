@@ -1,0 +1,8 @@
+Post 3 hiiii
+Share 1
+Share 2
+Post 7 This is fun
+Idle 8
+Delete 4
+ShowBlog
+PrintState

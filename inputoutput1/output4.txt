@@ -1,0 +1,13 @@
+Post 4
+Share 2
+Post 8
+Blog: 4,8
+Idle 3 seconds
+Idle 5 seconds
+Blog: 1,2,3,4,5,8
+Log: {post(4,"I am bored"),post(8,"YOLO"),post(1,"Hello"),post(5,"Anyone?"),post(2,"Sup")}
+TimeTable:
+|  2  1  1  1|
+|  0  1  1  1|
+|  0  0  1  0|
+|  2  1  1  2|

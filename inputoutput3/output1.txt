@@ -1,0 +1,15 @@
+Idle 1 seconds
+Post 1
+Post 2
+Delete 1
+Share 2
+Idle 5 seconds
+Share 4
+Post 5
+Blog: 2,3,4,5
+Log: {post(1,"I thought it would be a good idea to create this input file from the replicated log example that was presented on the previous discussion se"),post(2,"Any 9gag fans out there?"),delete(1),post(3,"just setting up my twttr"),post(4,"Bowties are cool."),post(5,"I am out of here...")}
+TimeTable:
+|  4  1  1  0|
+|  3  1  0  0|
+|  3  1  1  0|
+|  0  0  0  0|

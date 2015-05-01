@@ -1,0 +1,14 @@
+Post 4 My name is user 4
+Share 2
+Share 3
+Share 1
+Idle 3
+Delete 1
+Delete 2
+Delete 3
+Delete 4
+Share 1
+Share 3
+Share 2
+ShowBlog
+PrintState

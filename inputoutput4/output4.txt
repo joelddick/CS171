@@ -1,0 +1,10 @@
+Idle 5 seconds
+Delete 1
+Share 1
+Blog: 
+Log: {post(1,"Lalala"),delete(1)}
+TimeTable:
+|  1  0  0  0|
+|  0  0  0  0|
+|  0  0  0  0|
+|  1  0  0  1|

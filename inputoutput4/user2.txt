@@ -1,0 +1,5 @@
+Idle 5
+Delete 1
+Share 1
+ShowBlog
+PrintState

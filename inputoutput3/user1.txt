@@ -1,0 +1,10 @@
+Idle 1
+Post 1 I thought it would be a good idea to create this input file from the replicated log example that was presented on the previous discussion section. Also this text is too long but hopefully it will fit into my post. YOLO!
+Post 2 Any 9gag fans out there?
+Delete 1
+Share 2
+Idle 5
+Share 4
+Post 5 I am out of here...
+ShowBlog
+PrintState
