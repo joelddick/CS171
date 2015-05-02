@@ -53,7 +53,7 @@ public class ServeThread extends Thread {
 
 			try {
 				socket = serverSocket.accept();
-				System.out.println("Connected");
+//				System.out.println("Connected");
 
 				/*
 				 * Receive log
@@ -78,14 +78,14 @@ public class ServeThread extends Thread {
 				 */
 				update(sourceSite, timeTable);
 				update(log);
-				
+
 				/*
 				 * Garbage collect
 				 */
-//				checkNow = !checkNow;
-//				if(checkNow) {
-					gargabeCollect();
-//				}
+				//				checkNow = !checkNow;
+				//				if(checkNow) {
+				gargabeCollect();
+				//				}
 
 
 			} catch (ClassNotFoundException e) {
@@ -96,41 +96,43 @@ public class ServeThread extends Thread {
 		}
 	}
 
-	
+
 	/*
 	 * Synchronously garbage collect
 	 */
 	public synchronized void gargabeCollect() {
-		
-		int clearUntil = Integer.MAX_VALUE;
-		
-		// Find lowest common clock value
-		synchronized (parentThread.timeTable) {
-			for(int i = 0; i < 4; ++i) {
-				if(parentThread.timeTable[i][siteNum-1] < clearUntil) {
-					clearUntil = parentThread.timeTable[i][siteNum-1];
-				}
-			}
-		}
-		
-		
-		
-		// use this clock value to garbage collect
-		if(clearUntil != 0) {
-			System.out.println("Clearing up until " + clearUntil + " at site " + this.siteNum);
-			synchronized (parentThread.log) {
-				for(int i = 0; i < parentThread.log.size(); ++i) {
-					if(parentThread.log.get(i).clock <= clearUntil) {
-						System.out.println("Removing " + parentThread.log.get(i).string + " at site "+this.siteNum);
-						parentThread.log.remove(i);
+
+		for(int j = 0; j < 4; j++){
+			int clearUntil = Integer.MAX_VALUE;
+
+			// Find lowest common clock value
+			synchronized (parentThread.timeTable) {
+				for(int i = 0; i < 4; ++i) {
+					if(parentThread.timeTable[i][j] < clearUntil) {
+						clearUntil = parentThread.timeTable[i][j];
 					}
-					
+				}
+			}
+
+
+
+			// use this clock value to garbage collect
+			if(clearUntil != 0) {
+//				System.out.println("Clearing up until " + clearUntil + " at site " + this.siteNum);
+				synchronized (parentThread.log) {
+					for(int i = 0; i < parentThread.log.size(); ++i) {
+						if(parentThread.log.get(i).clock <= clearUntil && parentThread.log.get(i).site - 1 == j) {
+//							System.out.println("Removing " + parentThread.log.get(i).string + " at site "+this.siteNum);
+							parentThread.log.remove(i);
+						}
+
+					}
 				}
 			}
 		}
-		
+
 	}
-	
+
 
 	/*
 	 * Synchronously update TimeTable
@@ -171,10 +173,10 @@ public class ServeThread extends Thread {
 				if(copy){
 					parentThread.log.add(lst);
 					synchronized (parentThread.msgs) {
-						if(lst.string.substring(0, 4).equals("Post")){
+						if(lst.string.substring(0, 4).equals("post")){
 							parentThread.msgs.add(Integer.valueOf(lst.string.substring(lst.string.indexOf("(") + 1, lst.string.indexOf(","))));
 						}
-						else if (lst.string.substring(0, 6).equals("Delete")){
+						else if (lst.string.substring(0, 6).equals("delete")){
 							parentThread.msgs.remove(Integer.valueOf(lst.string.substring(lst.string.indexOf("(") + 1, lst.string.indexOf(")"))));
 						}
 					}

@@ -128,7 +128,7 @@ public class EventThread extends Thread {
 				timeTable[arrayNum][arrayNum] += 1;
 
 				// Create log entry.
-				String temp = "Post(" + String.valueOf(msgId) + ",\"" + message
+				String temp = "post(" + String.valueOf(msgId) + ",\"" + message
 						+ "\")";
 				int time = timeTable[arrayNum][arrayNum];
 
@@ -151,7 +151,7 @@ public class EventThread extends Thread {
 			writer.write("Share " + String.valueOf(destSite)+"\n");
 		} else if (event.substring(0, 6).equals("Delete")) {
 			if(siteNum == 3){
-				System.out.println(String.valueOf(msgs));
+//				System.out.println(String.valueOf(msgs));
 			}
 			int msgId = Integer.valueOf(event.substring(7));
 			boolean update = false;
@@ -167,7 +167,7 @@ public class EventThread extends Thread {
 					timeTable[arrayNum][arrayNum] += 1;
 
 					// Create log entry.
-					String temp = "Delete(" + String.valueOf(msgId) + ")";
+					String temp = "delete(" + String.valueOf(msgId) + ")";
 					int time = timeTable[arrayNum][arrayNum];
 
 					// Add log entry to log with local time.
@@ -192,7 +192,12 @@ public class EventThread extends Thread {
 			for (StringTime i : log) {
 				tempLog = tempLog + i.string + ",";
 			}
-			tempLog = tempLog.substring(0, tempLog.length() - 1) + "}";
+			if(!tempLog.substring(5, 6).equals("{")){
+				tempLog = tempLog.substring(0, tempLog.length() - 1) + "}";
+			}
+			else {
+				tempLog += "}";
+			}
 
 			String[] tempTable = new String[4];
 			for (int i = 0; i < 4; i++) {

@@ -17,7 +17,7 @@ public class MainThread{
 		for (int i = 0; i < 4; i++){
 			try {
 				eThread[i].join();
-				System.out.println("Thread " + String.valueOf(i) + " joined.");
+//				System.out.println("Thread " + String.valueOf(i) + " joined.");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
