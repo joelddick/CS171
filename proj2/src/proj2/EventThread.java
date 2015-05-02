@@ -192,7 +192,7 @@ public class EventThread extends Thread {
 			for (StringTime i : log) {
 				tempLog = tempLog + i.string + ",";
 			}
-			if(!tempLog.substring(5, 6).equals("{")){
+			if(!tempLog.substring(tempLog.length() - 1, tempLog.length()).equals("{")){
 				tempLog = tempLog.substring(0, tempLog.length() - 1) + "}";
 			}
 			else {
